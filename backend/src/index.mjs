@@ -3,7 +3,7 @@
 import { createApp } from "./createApp.mjs";
 import 'dotenv/config';
 import db from './db/index.mjs';
-import mongoose from "mongoose";
+//import mongoose from "mongoose";
 //import cors from "cors";
 
 db.authenticate()
@@ -21,12 +21,12 @@ db.authenticate()
 })();
 
 
-const mongoURI = "mongodb://localhost/lms";  // mongodb server
+// const mongoURI = "mongodb://localhost/lms";  // mongodb server
 
-mongoose
-   .connect(mongoURI)
-   .then(() => console.log("Connected to Database"))
-   .catch((err) => console.log(`Error: ${err}`));
+// mongoose
+//    .connect(mongoURI)
+//    .then(() => console.log("Connected to Database"))
+//    .catch((err) => console.log(`Error: ${err}`));
 
 const app = createApp();
 

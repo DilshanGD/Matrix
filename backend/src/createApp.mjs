@@ -1,11 +1,11 @@
 // backend/src/createApp.mjs
 
 import express from 'express';
-import mongoose from 'mongoose';
+//import mongoose from 'mongoose';
 import routes from './routes/index.mjs';  // routes api's
 import cookieParser from 'cookie-parser';
 //import session from 'express-session';
-import MongoStore from 'connect-mongo';
+//import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 
