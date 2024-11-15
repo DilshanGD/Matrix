@@ -1,10 +1,25 @@
 // frontend/src/pages/student/components/StudentSidebar.js
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './css/StudentSidebar.css';
 
 const StudentSidebar = () => {
+  const navigate = useNavigate(); 
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('http://localhost:3005/student/logout', {}, {
+        withCredentials: true,                       // Ensures cookies are included in the request
+      });
+
+      navigate('/');                                 // Redirect to the login page or home after successful logout
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -31,7 +46,7 @@ const StudentSidebar = () => {
           <Link to="/payments" className="sidebar-link">Payments</Link>
         </li>
         <li>
-          <button className="sidebar-link logout-btn">Logout</button>
+          <button onClick={handleLogout} className="sidebar-link logout-btn">Logout</button>
         </li>
       </ul>
     </div>

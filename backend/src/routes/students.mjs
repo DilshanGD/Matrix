@@ -1,12 +1,13 @@
 // Backend/src/routes/student.mjs
 
-import { Router } from "express";
-import { validationResult, matchedData, checkSchema } from "express-validator";
+import { Router } from 'express';
+import { validationResult, matchedData, checkSchema } from 'express-validator';
 import { studentRegistrationValidation, studentLoginValidation, studentUpdateValidation } from '../utils/studentDetailsValidation.mjs';
-import { isAuth } from "../utils/studentMiddleware.mjs";    // Authentication middleware
-import { registrationNo, extractRegNo } from "../utils/utils.mjs";    
+import { isStudentAuth, verifyToken } from '../utils/studentMiddleware.mjs';    // Authentication middleware
+import { registrationNo, extractRegNo } from '../utils/utils.mjs';    
 import { Op } from 'sequelize';
 import Models from "../db/models.mjs";
+import jwt from 'jsonwebtoken';
 
 
 const router = Router();
@@ -186,25 +187,36 @@ router.post("/student/student-login",checkSchema(studentLoginValidation), async 
         const findStudent = await Models.Student.findOne({ where: { email: data.email }});   // Search student with the requested api
         
         if(!findStudent)                             // Checks requested is found or not
-            throw new Error("Unregistered Student");
+            return res.status(404).send("Unregistered Student");
             
         if(findStudent.pwd !== data.pwd)             // Checks password for the login request
-            throw new Error("Invalid pwd");
+            return res.status(404).send("Invalid Password");
 
-        req.session.isAuth = true;                   // Session variable for authorization check
-        req.session.reg_no = findStudent.reg_no;     // Store registration number in session
+        const token = jwt.sign(
+            {reg_no: findStudent.reg_no, full_name: findStudent.full_name, profile_pic: findStudent.profile_pic },
+            process.env.JWT_SECRET,
+            {expiresIn: "1h"}
+        );
+        
 
-        return res.status(200).send([findStudent, "Login Successfully"]);
+        return res.cookie("accessToken", token).status(200).json({ token });
         //return res.redirect("/student/student_dashboard");                     // Forward to student dashboard
     } catch(err) {
-        //console.log(err.message);
-        return res.status(400).send(err.message);
+        return res.status(400).json({ message: err.message });
         //return res.redirect("/student/student_login");                     // Forward to same student login page with msg of error
     }
 })
 
+// Student logout api
+router.post("/student/logout", async(req, res) => {
+    res.clearCookie("accessToken",{
+        secure: true,
+        sameSite: "none"
+    }).status(200).json({message: "Logged out Successfully."});
+})
+
 // Student profile view api
-router.post("/student/student-profile", isAuth, async (req, res) => {    // Student profile request
+router.post("/student/student-profile", isStudentAuth, async (req, res) => {    // Student profile request
     try {
         const findStudent = await Models.Student.findOne({ where: { reg_no: req.session.reg_no }});  // Load relevent table
         return res.status(200).send(findStudent);
@@ -215,7 +227,7 @@ router.post("/student/student-profile", isAuth, async (req, res) => {    // Stud
 })
 
 // Update student details api
-router.patch("/student/student-profile-update", isAuth, checkSchema(studentUpdateValidation), async (req, res) => {
+router.patch("/student/student-profile-update", isStudentAuth, checkSchema(studentUpdateValidation), async (req, res) => {
     const result = validationResult(req);
 
     if(!result.isEmpty())
@@ -295,7 +307,7 @@ router.patch("/student/student-profile-update", isAuth, checkSchema(studentUpdat
 })
 
 // New student registration page 
-router.post("/student/new-student-registration", async (req, res) => {    // Load Streams and Batches
+router.get("/student/new-student-registration", async (req, res) => {    // Load Streams and Batches
     try {
         const findStream = await Models.Stream.findAll({   // Load streams
             attributes: ['stream_id', 'title']
@@ -312,33 +324,35 @@ router.post("/student/new-student-registration", async (req, res) => {    // Loa
 })
 
 // Student top bar component api
-router.post("/student/student-topbar", isAuth, async (req, res) => {
+router.post("/student/student-topbar", verifyToken, async (req, res) => {
     try {
-        const findStudent = await Models.Student.findOne({       // Find student data 
-            where: { reg_no: req.session.reg_no },
+        const findStudent = await Models.Student.findOne({
+            where: { reg_no: req.user.reg_no },
             attributes: ['full_name', 'reg_no', 'profile_pic']
         });
-        if (!findStudent) {                                      // Check student is exists or not
-            return res.status(404).send("Student not found");
+
+        if (!findStudent) {
+            return res.status(404).json({ message: "Student not found" });
         }
 
-        const navLogo = await Models.Front_Detail.findOne({      // Find logo
+        const navLogo = await Models.Front_Detail.findOne({
             where: { type: 'nav' },
             attributes: ['file_path']
         });
 
-        return res.status(200).send({                            // Send relevent data
+        return res.status(200).json({
             full_name: findStudent.full_name,
             reg_no: findStudent.reg_no,
             profile_pic: findStudent.profile_pic,
-            nav_logo: navLogo.file_path 
+            nav_logo: navLogo ? navLogo.file_path : 'default-logo.png'
         });
-
     } catch (err) {
-        console.error("Error is:", err.message);
-        return res.status(500).send(err.message);
+        console.error("Error:", err.message);
+        return res.status(500).json({ message: "Server error", error: err.message });
     }
 });
+
+
 
 
 

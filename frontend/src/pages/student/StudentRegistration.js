@@ -23,7 +23,7 @@ const StudentRegistration = () => {
   const [streams, setStreams] = useState([]);
 
   useEffect(() => {
-    axios.post('http://localhost:3005/student/new-student-registration')
+    axios.get('http://localhost:3005/student/new-student-registration')
       .then(response => {
         setBatches(response.data.batches || []);
         setStreams(response.data.streams || []);

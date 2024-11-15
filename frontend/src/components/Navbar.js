@@ -1,61 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import { Link } from 'react-router-dom';
-// import axios from 'axios';
-// import './css/Navbar.css';
-
-// const Navbar = () => {
-//   const [logo, setLogo] = useState(null);
-//   const [error, setError] = useState(false);
-
-//   useEffect(() => {
-//     axios.get('http://localhost:3005/navbar')
-//       .then(response => {
-//         const logoDetail = response.data.find(detail => detail.detail_id === 'logo_nav');
-//         if (logoDetail) {
-//           setLogo(logoDetail.file_path);
-//         } else {
-//           setError(true);
-//         }
-//       })
-//       .catch(error => {
-//         console.error("Error fetching navbar details:", error);
-//         setError(true);
-//       });
-//   }, []);
-
-//   return (
-//     <nav className="navbar">
-//       <div className="navbar-content">
-//         <Link to="/" className="navbar-logo">
-//           {logo && !error ? (
-//             <img src={`/${logo}`} alt="Matrix Logo" className="logo" />
-//           ) : error ? (
-//             <p>Logo not available</p>
-//           ) : (
-//             <p>Loading...</p>
-//           )}
-//         </Link>
-
-//         <ul className="nav-links">
-//           <li><Link to="/strict/teachers" className="nav-link">Teacher</Link></li>
-//           <li><Link to="/strict/timetable" className="nav-link">TimeTable</Link></li>
-//           <li><Link to="/strict/library" className="nav-link">Library</Link></li>
-//           <li><Link to="/strict/blogs" className="nav-link">Blog</Link></li>
-//           <li><Link to="/strict/tips" className="nav-link">Tips</Link></li>
-//           <li><Link to="/strict/contact" className="nav-link">Contact Us</Link></li>
-//         </ul>
-
-//         <Link to="/sign-in" className="sign-in-button">
-//           Sign In
-//         </Link>
-//       </div>
-//     </nav>
-//   );
-// };
-
-// export default Navbar;
-
-
 // frontend/src/components/Navbar.js
 
 import React, { useEffect, useState } from 'react';
@@ -100,8 +42,8 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <Link to="/" className="navbar-logo">
-          {logo && !error ? (
+        <Link to="/" className="navbar-logo" aria-label="Home">
+          {logo ? (
             <img src={`/${logo}`} alt="Matrix Logo" className="logo" />
           ) : error ? (
             <p>Logo not available</p>
@@ -123,6 +65,8 @@ const Navbar = () => {
           <button
             className="sign-in-button"
             onClick={handleDropdownToggle}
+            aria-haspopup="true"
+            aria-expanded={showDropdown ? "true" : "false"}
           >
             Sign In
           </button>

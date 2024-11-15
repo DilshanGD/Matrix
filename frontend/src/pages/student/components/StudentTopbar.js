@@ -12,12 +12,16 @@ const StudentTopbar = () => {
     // Fetch student topbar data from the API
     const fetchStudentData = async () => {
       try {
-        const response = await axios.post('http://localhost:3005/student/student-topbar', {}, {
-          withCredentials: true, // To ensure session is sent along
-        });
+        const response = await axios.post('http://localhost:3005/student/student-topbar', {}, 
+          {
+            withCredentials: true, // Necessary to send session cookies
+          }
+        );
+        console.log("Data retrieved from API:", response.data); // Debugging log
         setStudentData(response.data);
       } catch (err) {
-        setError(err.response ? err.response.data : 'Failed to load student data');
+        console.error("Error fetching student data:", err);     // Debugging log
+        setError(err.response?.data || 'Failed to load student data');
       }
     };
 
@@ -32,11 +36,18 @@ const StudentTopbar = () => {
     return <div className="loading-message">Loading...</div>;
   }
 
+  console.log("Rendering StudentTopbar with full name:", studentData);
+  console.log("Rendering reg_no:", studentData);
+
   return (
     <div className="student-topbar">
       {/* Left side: Navigation Logo */}
       <div className="nav-logo">
-        <img src={`http://localhost:3005/${studentData.nav_logo}`} alt="Navigation Logo" className="nav-logo-img" />
+        <img 
+          src={`/${studentData.nav_logo || 'default-logo.png'}`} 
+          alt="Navigation Logo" 
+          className="nav-logo-img" 
+        />
       </div>
 
       {/* Middle: Student Full Name and Reg Number */}
@@ -48,7 +59,7 @@ const StudentTopbar = () => {
       {/* Right side: Profile Picture */}
       <div className="profile-pic">
         <img
-          src={`http://localhost:3005/${studentData.profile_pic}`}
+          src={`/${studentData.profile_pic || 'default-profile.png'}`}
           alt={`${studentData.full_name}'s profile`}
           className="profile-pic-img"
         />

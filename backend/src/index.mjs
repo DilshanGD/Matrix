@@ -4,6 +4,7 @@ import { createApp } from "./createApp.mjs";
 import 'dotenv/config';
 import db from './db/index.mjs';
 import mongoose from "mongoose";
+//import cors from "cors";
 
 db.authenticate()
     .then(() => console.log("Connected to the postgres database LMS"))
@@ -18,6 +19,7 @@ db.authenticate()
         console.error('Error syncing database:', error);
     }
 })();
+
 
 const mongoURI = "mongodb://localhost/lms";  // mongodb server
 

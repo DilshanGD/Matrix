@@ -2,30 +2,49 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './css/StudentSignIn.css';
 
 const StudentSignIn = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState([]); // Store multiple errors
   const [successMessage, setSuccessMessage] = useState(null);
+
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(null);
+    setErrors([]);
     setSuccessMessage(null);
 
     try {
-      const response = await axios.post('http://localhost:3005/student/student-login', {
-        email,
-        pwd: password,
-      });
-      setSuccessMessage(response.data[1]);
-      setEmail('');
-      setPassword('');
+      const response = await axios.post(
+        'http://localhost:3005/student/student-login',
+        {
+          email,
+          pwd: password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.token) {
+        setSuccessMessage("Login Successful!");
+        setEmail('');
+        setPassword('');
+        // Navigate to Student.js after a successful login
+        navigate('/student');
+      }
     } catch (err) {
-      console.error('Login failed:', err);
-      setError(err.response ? err.response.data : 'Login failed. Please try again.');
+      if (err.response && err.response.data.errors) {
+        // Handle validation errors sent by the API
+        setErrors(err.response.data.errors.map(error => error.msg));
+      } else {
+        // Handle other errors
+        setErrors([err.response?.data || 'Login failed. Please try again.']);
+      }
     }
   };
 
@@ -58,7 +77,13 @@ const StudentSignIn = ({ onClose }) => {
             />
           </div>
           <button type="submit" className="login-btn">Login</button>
-          {error && <p className="error-message">{error}</p>}
+          {errors.length > 0 && (
+            <div className="error-message">
+              {errors.map((error, index) => (
+                <p key={index}>{error}</p>
+              ))}
+            </div>
+          )}
           {successMessage && <p className="success-message">{successMessage}</p>}
         </form>
       </div>

@@ -6,6 +6,7 @@ import ReactHomePage from './pages/common/ReactHomePage';
 import StudentRegistration from './pages/student/StudentRegistration'; 
 import AddBlog from './pages/staff/AddBlog'; 
 import StrictPage from './pages/common/StrictPage';
+import Student from './pages/student/Student';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/strict/*" element={<StrictPage />} />
         <Route path="/student-registration" element={<StudentRegistration />} />
         <Route path="/staff/add-blog" element={<AddBlog />} />
+        <Route path="/student/*" element={<Student />} />
       </Routes>
     </Router>
   );

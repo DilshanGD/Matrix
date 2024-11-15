@@ -154,21 +154,26 @@ export const studentRegistrationValidation = {
 export const studentLoginValidation = {
     email: {
         isEmail: {
-            errorMessage: "isEmail"
+            errorMessage: "Invalid email format"
         },
         notEmpty: {
-            errorMessage: "emailEmpty"
+            errorMessage: "Email field cannot be empty"
         }
     },
     pwd: {
         notEmpty: {
-            errorMessage: "pwdEmpty"
+            errorMessage: "Password field cannot be empty"
         },
         isString: {
-            errorMessage: "pwdString"
+            errorMessage: "Password must be a string"
+        },
+        isLength: {
+            options: { min: 8 },
+            errorMessage: "Password must be at least 8 characters long"
         }
     }
 };
+
 
 // Student details update validation
 export const studentUpdateValidation = {
